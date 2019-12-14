@@ -1,6 +1,7 @@
 package org.mechdancer.nano.serial
 
 import com.fazecast.jSerialComm.SerialPort
+import org.mechdancer.nano.serial.data.DataSerializer
 import java.util.concurrent.ConcurrentSkipListSet
 import kotlin.concurrent.thread
 
@@ -33,6 +34,12 @@ object SerialManager {
      */
     fun removeListener(listener: SerialDataListener<*, *>) =
         listeners.remove(listener)
+
+    fun <R, T : DataSerializer<R>> send(data: R, serializer: T) =
+        send(serializer.toByteArray(data))
+
+    fun send(data: ByteArray) =
+        comPort.writeBytes(data, data.size.toLong())
 
     /**
      * 启动

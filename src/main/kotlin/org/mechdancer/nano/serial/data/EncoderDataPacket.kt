@@ -14,7 +14,7 @@ data class EncoderDataPacket(
     }
 
     companion object : DataSerializer<EncoderDataPacket>(0xA2.toByte(), 4 * RidiculousConstants.MOTOR_SIZE + 2) {
-        override fun toArray(data: EncoderDataPacket): ByteArray =
+        override fun toByteArray(data: EncoderDataPacket): ByteArray =
             ByteArrayOutputStream(size).use {
                 it.writeHead()
                 ByteBuffer
@@ -36,7 +36,7 @@ data class EncoderDataPacket(
             }
 
 
-        override fun fromArray(array: ByteArray): EncoderDataPacket? =
+        override fun fromByteArray(array: ByteArray): EncoderDataPacket? =
             array.splitPacket { _, bytes, check ->
                 if (!array.checkPacket(check)) return@splitPacket null
                 val nioBuffer = ByteBuffer.wrap(bytes)

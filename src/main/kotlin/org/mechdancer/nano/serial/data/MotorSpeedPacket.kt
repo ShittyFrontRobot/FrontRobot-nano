@@ -14,7 +14,7 @@ data class MotorSpeedPacket(
     }
 
     companion object : DataSerializer<MotorSpeedPacket>(0xA1.toByte(), 4 * RidiculousConstants.MOTOR_SIZE + 2) {
-        override fun toArray(data: MotorSpeedPacket): ByteArray =
+        override fun toByteArray(data: MotorSpeedPacket): ByteArray =
             ByteArrayOutputStream(size).use {
                 it.writeHead()
                 ByteBuffer
@@ -35,7 +35,7 @@ data class MotorSpeedPacket(
                 it.toByteArray()
             }
 
-        override fun fromArray(array: ByteArray): MotorSpeedPacket? =
+        override fun fromByteArray(array: ByteArray): MotorSpeedPacket? =
             array.splitPacket { _, bytes, check ->
                 if (!array.checkPacket(check)) return@splitPacket null
                 val nioBuffer = ByteBuffer.wrap(bytes)

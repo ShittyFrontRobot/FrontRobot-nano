@@ -19,12 +19,12 @@ abstract class DataSerializer<T>(
     /**
      * 编码
      */
-    abstract fun toArray(data: T): ByteArray
+    abstract fun toByteArray(data: T): ByteArray
 
     /**
      * 解码
      */
-    abstract fun fromArray(array: ByteArray): T?
+    abstract fun fromByteArray(array: ByteArray): T?
 
     protected fun OutputStream.write(byte: Byte) = write(byte.toInt())
 

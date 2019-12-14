@@ -13,4 +13,9 @@ object RidiculousConstants {
      * 启用 Debug
      */
     const val DEBUG = true
+
+    /**
+     * 主动通信周期
+     */
+    const val SEND_PERIOD = 5L
 }

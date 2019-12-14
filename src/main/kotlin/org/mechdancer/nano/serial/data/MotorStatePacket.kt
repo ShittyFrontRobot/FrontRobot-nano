@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream
  */
 data class MotorStatePacket(
     val states: Array<MotorState>
-) : SerialData {
+) {
 
     init {
         require(states.size == RidiculousConstants.MOTOR_SIZE)
@@ -30,7 +30,7 @@ data class MotorStatePacket(
             else -> throw IllegalArgumentException("Unknown motor state: $byte")
         }
 
-        override fun toArray(data: MotorStatePacket): ByteArray =
+        override fun toByteArray(data: MotorStatePacket): ByteArray =
             ByteArrayOutputStream(size).use {
                 it.writeHead()
                 data.states
@@ -44,7 +44,7 @@ data class MotorStatePacket(
                 it.toByteArray()
             }
 
-        override fun fromArray(array: ByteArray): MotorStatePacket? =
+        override fun fromByteArray(array: ByteArray): MotorStatePacket? =
             array.splitPacket { _, bytes, check ->
                 if (!array.checkPacket(check)) return@splitPacket null
                 bytes

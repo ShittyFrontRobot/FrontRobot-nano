@@ -7,6 +7,6 @@ class SerialDataListener<R, T : DataSerializer<R>>(
     private val onNewData: (R?) -> Unit
 ) {
     fun update(data: ByteArray) {
-        onNewData(serializer.fromArray(data))
+        onNewData(serializer.fromByteArray(data))
     }
 }
