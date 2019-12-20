@@ -18,4 +18,14 @@ object RidiculousConstants {
      * 主动通信周期
      */
     const val SEND_PERIOD = 5L
+
+    /**
+     * 数据帧-负载大小
+     */
+    const val PACKET_INFO_SIZE = 3
+
+    /**
+     * 帧头
+     */
+    const val PACKET_HEAD = 0xff.toByte()
 }

@@ -13,12 +13,14 @@ data class MotorSpeedPacket(
         require(speeds.size == RidiculousConstants.MOTOR_SIZE)
     }
 
-    companion object : DataSerializer<MotorSpeedPacket>(0xA1.toByte(), 4 * RidiculousConstants.MOTOR_SIZE + 2) {
+    companion object : DataSerializer<MotorSpeedPacket>(0xA1.toByte(),
+        4 * RidiculousConstants.MOTOR_SIZE + RidiculousConstants.PACKET_INFO_SIZE) {
         override fun toByteArray(data: MotorSpeedPacket): ByteArray =
             ByteArrayOutputStream(size).use {
                 it.writeHead()
+                it.writeType()
                 ByteBuffer
-                    .allocate(size - 2)
+                    .allocate(size - RidiculousConstants.PACKET_INFO_SIZE)
                     // 大端
                     .order(ByteOrder.BIG_ENDIAN)
                     .apply {
@@ -30,8 +32,7 @@ data class MotorSpeedPacket(
                     .let { array ->
                         it.write(array)
                     }
-                // 写入帧头后再计算校验位
-                it.write(it.toByteArray().xorAll())
+                it.write(it.toByteArray().xorTail())
                 it.toByteArray()
             }
 

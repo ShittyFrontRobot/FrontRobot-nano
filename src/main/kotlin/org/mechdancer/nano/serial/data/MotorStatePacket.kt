@@ -15,7 +15,8 @@ data class MotorStatePacket(
         require(states.size == RidiculousConstants.MOTOR_SIZE)
     }
 
-    companion object : DataSerializer<MotorStatePacket>(0xA3.toByte(), RidiculousConstants.MOTOR_SIZE + 2) {
+    companion object : DataSerializer<MotorStatePacket>(0xA3.toByte(),
+        RidiculousConstants.MOTOR_SIZE + RidiculousConstants.PACKET_INFO_SIZE) {
 
         private fun MotorState.toByte() = when (this) {
             MotorState.Stop  -> 0x0
@@ -33,13 +34,13 @@ data class MotorStatePacket(
         override fun toByteArray(data: MotorStatePacket): ByteArray =
             ByteArrayOutputStream(size).use {
                 it.writeHead()
+                it.writeType()
                 data.states
                     .map { s -> s.toByte() }
                     .toByteArray()
                     .run {
                         it.write(this)
-                        // 写入帧头后再计算校验位
-                        it.write(it.toByteArray().xorAll())
+                        it.write(it.toByteArray().xorTail())
                     }
                 it.toByteArray()
             }

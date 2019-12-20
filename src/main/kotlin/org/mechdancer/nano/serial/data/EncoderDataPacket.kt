@@ -13,12 +13,14 @@ data class EncoderDataPacket(
         require(ticks.size == RidiculousConstants.MOTOR_SIZE)
     }
 
-    companion object : DataSerializer<EncoderDataPacket>(0xA2.toByte(), 4 * RidiculousConstants.MOTOR_SIZE + 2) {
+    companion object : DataSerializer<EncoderDataPacket>(0xA2.toByte(),
+        4 * RidiculousConstants.MOTOR_SIZE + RidiculousConstants.PACKET_INFO_SIZE) {
         override fun toByteArray(data: EncoderDataPacket): ByteArray =
             ByteArrayOutputStream(size).use {
                 it.writeHead()
+                it.writeType()
                 ByteBuffer
-                    .allocate(MotorSpeedPacket.size - 2)
+                    .allocate(MotorSpeedPacket.size - RidiculousConstants.PACKET_INFO_SIZE)
                     // 大端
                     .order(ByteOrder.BIG_ENDIAN)
                     .apply {
@@ -30,8 +32,7 @@ data class EncoderDataPacket(
                     .let { array ->
                         it.write(array)
                     }
-                // 写入帧头后再计算校验位
-                it.write(it.toByteArray().xorAll())
+                it.write(it.toByteArray().xorTail())
                 it.toByteArray()
             }
 

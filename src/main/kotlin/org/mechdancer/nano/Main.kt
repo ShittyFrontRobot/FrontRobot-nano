@@ -1,9 +1,10 @@
 package org.mechdancer.nano
 
 import org.mechdancer.nano.device.motor.MotorState
+import org.mechdancer.nano.serial.data.EncoderDataPacket
 import org.mechdancer.nano.serial.data.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.MotorStatePacket
-import org.mechdancer.nano.serial.data.EncoderDataPacket
+import org.mechdancer.nano.serial.data.RobotResetPacket
 
 
 fun main() {
@@ -23,6 +24,11 @@ fun main() {
     EncoderDataPacket.toByteArray(data3).let {
         println(it.joinToString())
         println(EncoderDataPacket.fromByteArray(it))
+    }
+    val data4 = RobotResetPacket
+    RobotResetPacket.toByteArray(data4).let {
+        println(it.joinToString())
+        println(RobotResetPacket.fromByteArray(it))
     }
 }
 
