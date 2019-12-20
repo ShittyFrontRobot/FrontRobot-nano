@@ -21,8 +21,7 @@ data class EncoderDataPacket(
                 it.writeType()
                 ByteBuffer
                     .allocate(MotorSpeedPacket.size - RidiculousConstants.PACKET_INFO_SIZE)
-                    // 大端
-                    .order(ByteOrder.BIG_ENDIAN)
+                    .order(ByteOrder.LITTLE_ENDIAN)
                     .apply {
                         data.ticks.forEach { d ->
                             putShort(d)

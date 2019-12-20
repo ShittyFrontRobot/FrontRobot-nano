@@ -21,8 +21,7 @@ data class MotorSpeedPacket(
                 it.writeType()
                 ByteBuffer
                     .allocate(size - RidiculousConstants.PACKET_INFO_SIZE)
-                    // 大端
-                    .order(ByteOrder.BIG_ENDIAN)
+                    .order(ByteOrder.LITTLE_ENDIAN)
                     .apply {
                         data.speeds.forEach { d ->
                             putFloat(d)
