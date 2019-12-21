@@ -24,9 +24,12 @@ class SimpleLogger(vararg names: String) {
     /** 记录一行日志，用制表符隔开 */
     fun log(vararg msg: Any?) {
         synchronized(buffer) {
+            val buffer = StringBuilder()
             buffer.append("${SimpleDateFormat("HH:mm:ss:SSS").format(Date())}\t")
             buffer.append("${System.currentTimeMillis()}\t")
             buffer.appendln(msg.joinToString("\t"))
+            print(buffer.toString())
+            this.buffer.append(buffer)
         }
         if (buffer.length >= period) flush()
     }

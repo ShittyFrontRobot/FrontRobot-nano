@@ -17,7 +17,7 @@ object RidiculousConstants {
     /**
      * 主动通信周期
      */
-    const val SEND_PERIOD = 5L
+    const val SEND_PERIOD = 10L
 
     /**
      * 数据帧-负载大小

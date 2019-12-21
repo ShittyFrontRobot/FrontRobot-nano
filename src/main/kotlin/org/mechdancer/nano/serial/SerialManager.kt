@@ -1,6 +1,8 @@
 package org.mechdancer.nano.serial
 
 import com.fazecast.jSerialComm.SerialPort
+import org.mechdancer.nano.globalLogger
+import org.mechdancer.nano.info
 import org.mechdancer.nano.serial.data.DataSerializer
 import java.util.concurrent.ConcurrentSkipListSet
 import kotlin.concurrent.thread
@@ -14,7 +16,9 @@ object SerialManager {
     private var isStarted = false
 
     private val comPort: SerialPort by lazy {
-        SerialPort.getCommPorts().first()
+        SerialPort.getCommPorts()[0].also {
+            globalLogger.info { "Open serial port: ${it.systemPortName}" }
+        }
     }
 
     private val listeners =
@@ -46,11 +50,12 @@ object SerialManager {
      */
     fun startup() {
         if (isStarted) return
+        globalLogger.info { "Manager startup" }
         comPort.openPort()
         comPort.setComPortParameters(115200, 8, 1, 0)
         comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0)
         isStarted = true
-        thread {
+        thread(isDaemon = true) {
             while (isStarted) {
                 val buffer = ByteArray(1024)
                 comPort.readBytes(buffer, buffer.size.toLong())
@@ -66,6 +71,7 @@ object SerialManager {
      */
     fun stop() {
         if (!isStarted) return
+        globalLogger.info { "Manager stop" }
         comPort.closePort()
         isStarted = false
     }

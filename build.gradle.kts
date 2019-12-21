@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.61"
+    application
 }
 
 group = "org.mechdancer"
@@ -17,9 +18,22 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("net.java.dev.jna", "jna-platform", "5.5.0")
     implementation("com.fazecast", "jSerialComm", "2.5.3")
-    implementation ("org.mechdancer","linearalgebra","0.2.6-dev-2")
+    implementation("org.mechdancer", "linearalgebra", "0.2.6-dev-2")
 }
 
+application {
+    mainClassName = "org.mechdancer.nano.MainKt"
+}
+
+tasks.withType<Jar> {
+    from(sourceSets.main.get().output)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+    manifest {
+        attributes("Main-Class" to application.mainClassName)
+    }
+}
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
