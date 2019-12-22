@@ -27,5 +27,5 @@ object RidiculousConstants {
     /**
      * 帧头
      */
-    const val PACKET_HEAD = 0xff.toByte()
+    const val PACKET_HEAD = 0xbc.toByte()
 }

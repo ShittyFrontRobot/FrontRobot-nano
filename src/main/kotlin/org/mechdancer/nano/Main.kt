@@ -6,6 +6,8 @@ import org.mechdancer.nano.serial.data.EncoderDataPacket
 import org.mechdancer.nano.serial.data.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.MotorStatePacket
 import org.mechdancer.nano.serial.data.RobotResetPacket
+import kotlin.concurrent.thread
+import kotlin.random.Random
 
 
 fun test() {
@@ -33,12 +35,40 @@ fun test() {
     }
 }
 
-fun main() {
-    val data = MotorStatePacket(Array(6) { MotorState.Break })
+
+fun main(args: Array<String>) {
+
+//    val data1 = MotorStatePacket(Array(6) { MotorState.Break })
+//    val data2 = MotorStatePacket(Array(6) { MotorState.Stop })
+//    val data3 = MotorStatePacket(Array(6) { MotorState.Speed })
+//    val bytes1 = MotorStatePacket.toByteArray(data1)
+//    val bytes2 = MotorStatePacket.toByteArray(data2)
+//    val bytes3 = MotorStatePacket.toByteArray(data3)
+    val data1 = MotorSpeedPacket(FloatArray(6) { Random.nextDouble(-1.0, 1.0).toFloat() })
+    val data2 = MotorSpeedPacket(FloatArray(6) { Random.nextDouble(-1.0, 1.0).toFloat() })
+    val data3 = MotorSpeedPacket(FloatArray(6) { Random.nextDouble(-1.0, 1.0).toFloat() })
+    val bytes1 = MotorSpeedPacket.toByteArray(data1)
+    val bytes2 = MotorSpeedPacket.toByteArray(data2)
+    val bytes3 = MotorSpeedPacket.toByteArray(data3)
     SerialManager.startup()
+    var i = 0
+    Runtime.getRuntime().addShutdownHook(thread(false) {
+        globalLogger.info {
+            "Sent $i."
+        }
+    })
     while (true) {
-        globalLogger.info { SerialManager.send(MotorStatePacket.toByteArray(data)) }
-        Thread.sleep(5000)
+        val bytes = when (++i % 3) {
+            0    -> bytes3
+            1    -> bytes1
+            2    -> bytes2
+            else -> throw RuntimeException()
+        }
+        globalLogger.info {
+            SerialManager.send(bytes)
+            bytes.map { it.toInt() and 0xff }.joinToString()
+        }
+        Thread.sleep(args.first().toLong())
     }
 }
 
