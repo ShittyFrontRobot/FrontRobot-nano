@@ -38,7 +38,7 @@ data class MotorSpeedPacket(
         override fun fromByteArray(array: ByteArray): MotorSpeedPacket? =
             array.splitPacket { _, bytes, check ->
                 if (!array.checkPacket(check)) return@splitPacket null
-                val nioBuffer = ByteBuffer.wrap(bytes)
+                val nioBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
                 // 每个电机一个 float
                 val result = FloatArray(RidiculousConstants.MOTOR_SIZE)
                 (0 until RidiculousConstants.MOTOR_SIZE).forEach { i ->

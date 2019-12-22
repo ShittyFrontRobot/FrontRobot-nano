@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 data class EncoderDataPacket(
-    val ticks: ShortArray
+    val ticks: FloatArray
 ) {
 
     init {
@@ -20,11 +20,11 @@ data class EncoderDataPacket(
                 it.writeHead()
                 it.writeType()
                 ByteBuffer
-                    .allocate(MotorSpeedPacket.size - RidiculousConstants.PACKET_INFO_SIZE)
+                    .allocate(size - RidiculousConstants.PACKET_INFO_SIZE)
                     .order(ByteOrder.LITTLE_ENDIAN)
                     .apply {
                         data.ticks.forEach { d ->
-                            putShort(d)
+                            putFloat(d)
                         }
                     }
                     .array()
@@ -39,11 +39,11 @@ data class EncoderDataPacket(
         override fun fromByteArray(array: ByteArray): EncoderDataPacket? =
             array.splitPacket { _, bytes, check ->
                 if (!array.checkPacket(check)) return@splitPacket null
-                val nioBuffer = ByteBuffer.wrap(bytes)
+                val nioBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
                 // 每个编码器一个 short
-                val result = ShortArray(RidiculousConstants.MOTOR_SIZE)
+                val result = FloatArray(RidiculousConstants.MOTOR_SIZE)
                 (0 until RidiculousConstants.MOTOR_SIZE).forEach { i ->
-                    result[i] = nioBuffer.short
+                    result[i] = nioBuffer.float
                 }
                 EncoderDataPacket(result)
             }

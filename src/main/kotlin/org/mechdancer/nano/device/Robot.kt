@@ -56,7 +56,7 @@ object Robot {
         motors.forEach {
             it.state = MotorState.Stop
             it.speed = 0f
-            it.encoderValue = 0
+            it.encoderValue = 0f
         }
         SerialManager.send(RobotResetPacket, RobotResetPacket)
     }

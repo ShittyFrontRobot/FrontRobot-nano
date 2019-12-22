@@ -12,32 +12,17 @@ import kotlin.random.Random
 
 fun test() {
     val data = MotorStatePacket(Array(6) { MotorState.Break })
-    MotorStatePacket.toByteArray(data).let {
-        println(it.joinToString())
-        println(MotorStatePacket.fromByteArray(it))
-    }
-    val data2 = MotorSpeedPacket(doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0).map {
-        it.toFloat()
-    }.toFloatArray())
-    MotorSpeedPacket.toByteArray(data2).let {
-        println(it.joinToString())
-        println(MotorSpeedPacket.fromByteArray(it))
-    }
-    val data3 = EncoderDataPacket(shortArrayOf(23, 233, 2333, 2333, 33, 333))
-    EncoderDataPacket.toByteArray(data3).let {
-        println(it.joinToString())
-        println(EncoderDataPacket.fromByteArray(it))
-    }
+    require(MotorStatePacket.fromByteArray(MotorStatePacket.toByteArray(data)) == data)
+    val data2 = MotorSpeedPacket(floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f))
+    require(MotorSpeedPacket.fromByteArray(MotorSpeedPacket.toByteArray(data2)) == data2)
+    val data3 = EncoderDataPacket(floatArrayOf(23f, 233f, 2333f, 2333f, 33f, 333f))
+    require(EncoderDataPacket.fromByteArray(EncoderDataPacket.toByteArray(data3)) == data3)
     val data4 = RobotResetPacket
-    RobotResetPacket.toByteArray(data4).let {
-        println(it.joinToString())
-        println(RobotResetPacket.fromByteArray(it))
-    }
+    require(RobotResetPacket.fromByteArray(RobotResetPacket.toByteArray(data4)) == data4)
 }
 
 
 fun main(args: Array<String>) {
-
     val data1 = MotorStatePacket(Array(6) { MotorState.Break })
     val data2 = MotorStatePacket(Array(6) { MotorState.Stop })
     val data3 = MotorStatePacket(Array(6) { MotorState.Speed })
@@ -50,7 +35,7 @@ fun main(args: Array<String>) {
     val bytes4 = MotorSpeedPacket.toByteArray(data4)
     val bytes5 = MotorSpeedPacket.toByteArray(data5)
     val bytes6 = MotorSpeedPacket.toByteArray(data6)
-    SerialManager.startup()
+//    SerialManager.startup()
     var i = 0
     Runtime.getRuntime().addShutdownHook(thread(false) {
         globalLogger.info {
