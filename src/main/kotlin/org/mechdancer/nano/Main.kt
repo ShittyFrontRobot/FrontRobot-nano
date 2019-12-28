@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
             "Received $j packet(s)."
         }
     })
-    SerialManager.setPacetListener {
+    SerialManager.setPacketListener {
         if (it.hasValue()) {
             globalLogger.info(it)
             ++j
@@ -66,7 +66,7 @@ fun main(args: Array<String>) {
             globalLogger.info("Send result ${SerialManager.send(bytes)} byte(s).")
             bytes.map { it.toInt() and 0xff }.joinToString()
         }
-        Thread.sleep(args.first().toLong())
+        Thread.sleep(args.getOrElse(0) { "50" }.toLong())
     }
 }
 

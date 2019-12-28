@@ -17,9 +17,9 @@ object SerialManager {
     private var isStarted = false
 
     private val comPort: SerialPort by lazy {
-        SerialPort.getCommPorts()[0].also {
+        SerialPort.getCommPorts().find { "USB" in it.systemPortName }?.also {
             globalLogger.info { "Open serial port: ${it.systemPortName}" }
-        }
+        } ?: SerialPort.getCommPorts()[0]
     }
 
     private var packetListener = { _: ParsedPacket<*> -> }
@@ -32,7 +32,7 @@ object SerialManager {
     fun send(data: ByteArray) =
         comPort.writeBytes(data, data.size.toLong())
 
-    fun setPacetListener(block: (ParsedPacket<*>) -> Unit) {
+    fun setPacketListener(block: (ParsedPacket<*>) -> Unit) {
         packetListener = block
     }
 

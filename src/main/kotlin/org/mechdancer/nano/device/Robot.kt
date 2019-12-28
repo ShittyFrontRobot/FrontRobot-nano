@@ -25,7 +25,7 @@ object Robot {
     fun init() {
         if (isInitialized) return
         SerialManager.startup()
-        SerialManager.setPacetListener {
+        SerialManager.setPacketListener {
             when (it) {
                 is ParsedPacket.EncoderData ->
                     it.core.values.forEachIndexed { index, value ->
