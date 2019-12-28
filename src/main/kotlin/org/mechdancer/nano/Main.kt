@@ -35,13 +35,23 @@ fun main(args: Array<String>) {
     val bytes4 = MotorSpeedPacket.toByteArray(data4)
     val bytes5 = MotorSpeedPacket.toByteArray(data5)
     val bytes6 = MotorSpeedPacket.toByteArray(data6)
-//    SerialManager.startup()
+    SerialManager.startup()
     var i = 0
+    var j = 0
     Runtime.getRuntime().addShutdownHook(thread(false) {
         globalLogger.info {
             "Sent $i packet(s)."
         }
+        globalLogger.info {
+            "Received $j packet(s)."
+        }
     })
+    SerialManager.setPacetListener {
+        if (it.hasValue()) {
+            globalLogger.info(it)
+            ++j
+        }
+    }
     while (true) {
         val bytes = when (++i % 6) {
             0    -> bytes6
@@ -60,3 +70,13 @@ fun main(args: Array<String>) {
     }
 }
 
+//
+//fun main() {
+//
+//    val buffer= listOf(188,162,0,0,128,63,0,0,0,64,0,0,64,64,0,0,128,64,0,0,160,64,0,0,192,64,253)
+////    val buffer = EncoderDataPacket.toByteArray(EncoderDataPacket(floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f))).toList()
+//    val e = buildEngine()
+//    e(buffer.map { it.toByte() }) {
+//        println(it)
+//    }
+//}

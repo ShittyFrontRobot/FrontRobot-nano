@@ -6,11 +6,11 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 data class EncoderDataPacket(
-    val ticks: FloatArray
+    val values: FloatArray
 ) {
 
     init {
-        require(ticks.size == RidiculousConstants.MOTOR_SIZE)
+        require(values.size == RidiculousConstants.MOTOR_SIZE)
     }
 
     companion object : DataSerializer<EncoderDataPacket>(0xA2.toByte(),
@@ -23,7 +23,7 @@ data class EncoderDataPacket(
                     .allocate(size - RidiculousConstants.PACKET_INFO_SIZE)
                     .order(ByteOrder.LITTLE_ENDIAN)
                     .apply {
-                        data.ticks.forEach { d ->
+                        data.values.forEach { d ->
                             putFloat(d)
                         }
                     }
@@ -55,12 +55,12 @@ data class EncoderDataPacket(
 
         other as EncoderDataPacket
 
-        if (!ticks.contentEquals(other.ticks)) return false
+        if (!values.contentEquals(other.values)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return ticks.contentHashCode()
+        return values.contentHashCode()
     }
 }

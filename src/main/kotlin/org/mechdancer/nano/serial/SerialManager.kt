@@ -4,7 +4,8 @@ import com.fazecast.jSerialComm.SerialPort
 import org.mechdancer.nano.globalLogger
 import org.mechdancer.nano.info
 import org.mechdancer.nano.serial.data.DataSerializer
-import java.util.concurrent.ConcurrentSkipListSet
+import org.mechdancer.nano.serial.data.parser.ParsedPacket
+import org.mechdancer.nano.serial.data.parser.buildEngine
 import kotlin.concurrent.thread
 
 /**
@@ -21,29 +22,19 @@ object SerialManager {
         }
     }
 
-    private val listeners =
-        ConcurrentSkipListSet<SerialDataListener<*, *>> { o1, o2 ->
-            o1.hashCode().compareTo(o2.hashCode())
-        }
+    private var packetListener = { _: ParsedPacket<*> -> }
 
-
-    /**
-     * 添加数据监听器
-     */
-    fun addListener(listener: SerialDataListener<*, *>) =
-        listeners.add(listener)
-
-    /**
-     * 移除数据监听器
-     */
-    fun removeListener(listener: SerialDataListener<*, *>) =
-        listeners.remove(listener)
+    private val engine = buildEngine()
 
     fun <R, T : DataSerializer<R>> send(data: R, serializer: T) =
         send(serializer.toByteArray(data))
 
     fun send(data: ByteArray) =
         comPort.writeBytes(data, data.size.toLong())
+
+    fun setPacetListener(block: (ParsedPacket<*>) -> Unit) {
+        packetListener = block
+    }
 
     /**
      * 启动
@@ -53,15 +44,13 @@ object SerialManager {
         globalLogger.info { "Manager startup" }
         comPort.openPort()
         comPort.setComPortParameters(115200, 8, 1, 0)
-        comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0)
+        comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 50, 0)
         isStarted = true
         thread(isDaemon = true) {
             while (isStarted) {
-                val buffer = ByteArray(1024)
+                val buffer = ByteArray(64)
                 comPort.readBytes(buffer, buffer.size.toLong())
-                listeners.forEach {
-                    it.update(buffer)
-                }
+                engine(buffer.toList(), packetListener)
             }
         }
     }

@@ -3,12 +3,11 @@ package org.mechdancer.nano.device
 import org.mechdancer.nano.RidiculousConstants
 import org.mechdancer.nano.device.motor.Motor
 import org.mechdancer.nano.device.motor.MotorState
-import org.mechdancer.nano.serial.SerialDataListener
 import org.mechdancer.nano.serial.SerialManager
-import org.mechdancer.nano.serial.data.EncoderDataPacket
 import org.mechdancer.nano.serial.data.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.MotorStatePacket
 import org.mechdancer.nano.serial.data.RobotResetPacket
+import org.mechdancer.nano.serial.data.parser.ParsedPacket
 import kotlin.concurrent.thread
 
 object Robot {
@@ -19,21 +18,21 @@ object Robot {
 
     val motors = List(RidiculousConstants.MOTOR_SIZE - 1) { Motor(it) }
 
-    private val encoderDataListener =
-        SerialDataListener(EncoderDataPacket) {
-            if (it == null) return@SerialDataListener
-            it.ticks.forEachIndexed { i, t ->
-                motors[i].encoderValue = t
-            }
-        }
 
     /**
      * 初始化
      */
     fun init() {
         if (isInitialized) return
-        SerialManager.addListener(encoderDataListener)
         SerialManager.startup()
+        SerialManager.setPacetListener {
+            when (it) {
+                is ParsedPacket.EncoderData ->
+                    it.core.values.forEachIndexed { index, value ->
+                        motors[index].encoderValue = value
+                    }
+            }
+        }
         isInitialized = true
         reset()
         thread {
