@@ -1,17 +1,19 @@
 package org.mechdancer.nano.serial.data.parser
 
 import org.mechdancer.nano.RidiculousConstants
-import org.mechdancer.nano.serial.data.EncoderDataPacket
-import org.mechdancer.nano.serial.data.MotorSpeedPacket
-import org.mechdancer.nano.serial.data.MotorStatePacket
-import org.mechdancer.nano.serial.data.RobotResetPacket
+import org.mechdancer.nano.serial.data.arduino.EncoderValuePacket
+import org.mechdancer.nano.serial.data.arduino.MotorSpeedPacket
+import org.mechdancer.nano.serial.data.arduino.MotorStatePacket
+import org.mechdancer.nano.serial.data.arduino.RobotResetPacket
+import org.mechdancer.nano.serial.data.stm.EncoderDataPacket
 
 private val serializers =
     listOf(
         MotorSpeedPacket,
         MotorStatePacket,
-        EncoderDataPacket,
-        RobotResetPacket
+        EncoderValuePacket,
+        RobotResetPacket,
+        EncoderDataPacket
     )
 
 private val typeWithSize =
@@ -22,10 +24,22 @@ private val typeWithSerializer =
     serializers.associateBy { it.type }
 
 sealed class ParsedPacket<T>(val core: T) {
+
+    //region Arduino
     class MotorSpeed(core: MotorSpeedPacket) : ParsedPacket<MotorSpeedPacket>(core)
+
     class MotorState(core: MotorStatePacket) : ParsedPacket<MotorStatePacket>(core)
-    class EncoderData(core: EncoderDataPacket) : ParsedPacket<EncoderDataPacket>(core)
+    @Deprecated("STM")
+    class EncoderValue(core: EncoderValuePacket) : ParsedPacket<EncoderValuePacket>(core)
+
     object RobotReset : ParsedPacket<RobotResetPacket>(RobotResetPacket)
+    //endregion
+
+    //region STM
+    class EncoderData(core: EncoderDataPacket) : ParsedPacket<EncoderDataPacket>(core)
+    //endregion
+
+
     object Nothing : ParsedPacket<Unit>(Unit)
     object Failed : ParsedPacket<Unit>(Unit)
 
@@ -34,11 +48,12 @@ sealed class ParsedPacket<T>(val core: T) {
     companion object {
         fun wrap(it: Any?): ParsedPacket<*> =
             when (it) {
-                is MotorSpeedPacket  -> MotorSpeed(it)
-                is MotorStatePacket  -> MotorState(it)
-                is EncoderDataPacket -> EncoderData(it)
-                is RobotResetPacket  -> RobotReset
-                else                 -> Failed
+                is MotorSpeedPacket   -> MotorSpeed(it)
+                is MotorStatePacket   -> MotorState(it)
+                is EncoderValuePacket -> EncoderValue(it)
+                is RobotResetPacket   -> RobotReset
+                is EncoderDataPacket  -> EncoderData(it)
+                else                  -> Failed
             }
     }
 

@@ -1,21 +1,22 @@
-package org.mechdancer.nano.serial.data
+package org.mechdancer.nano.serial.data.arduino
 
 import org.mechdancer.nano.RidiculousConstants
+import org.mechdancer.nano.serial.data.DataSerializer
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-data class EncoderDataPacket(
-    val values: FloatArray
+data class MotorSpeedPacket(
+    val speeds: FloatArray
 ) {
 
     init {
-        require(values.size == RidiculousConstants.MOTOR_SIZE)
+        require(speeds.size == RidiculousConstants.MOTOR_SIZE)
     }
 
-    companion object : DataSerializer<EncoderDataPacket>(0xA2.toByte(),
+    companion object : DataSerializer<MotorSpeedPacket>(0xA1.toByte(),
         4 * RidiculousConstants.MOTOR_SIZE + RidiculousConstants.PACKET_INFO_SIZE) {
-        override fun toByteArray(data: EncoderDataPacket): ByteArray =
+        override fun toByteArray(data: MotorSpeedPacket): ByteArray =
             ByteArrayOutputStream(size).use {
                 it.writeHead()
                 it.writeType()
@@ -23,7 +24,7 @@ data class EncoderDataPacket(
                     .allocate(size - RidiculousConstants.PACKET_INFO_SIZE)
                     .order(ByteOrder.LITTLE_ENDIAN)
                     .apply {
-                        data.values.forEach { d ->
+                        data.speeds.forEach { d ->
                             putFloat(d)
                         }
                     }
@@ -35,32 +36,32 @@ data class EncoderDataPacket(
                 it.toByteArray()
             }
 
-
-        override fun fromByteArray(array: ByteArray): EncoderDataPacket? =
+        override fun fromByteArray(array: ByteArray): MotorSpeedPacket? =
             array.splitPacket { _, bytes, check ->
                 if (!array.checkPacket(check)) return@splitPacket null
                 val nioBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
-                // 每个编码器一个 short
+                // 每个电机一个 float
                 val result = FloatArray(RidiculousConstants.MOTOR_SIZE)
                 (0 until RidiculousConstants.MOTOR_SIZE).forEach { i ->
                     result[i] = nioBuffer.float
                 }
-                EncoderDataPacket(result)
+                MotorSpeedPacket(result)
             }
+
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as EncoderDataPacket
+        other as MotorSpeedPacket
 
-        if (!values.contentEquals(other.values)) return false
+        if (!speeds.contentEquals(other.speeds)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return values.contentHashCode()
+        return speeds.contentHashCode()
     }
 }

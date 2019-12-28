@@ -1,7 +1,8 @@
-package org.mechdancer.nano.serial.data
+package org.mechdancer.nano.serial.data.arduino
 
 import org.mechdancer.nano.RidiculousConstants
 import org.mechdancer.nano.device.motor.MotorState
+import org.mechdancer.nano.serial.data.DataSerializer
 import java.io.ByteArrayOutputStream
 
 /**

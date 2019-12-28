@@ -1,6 +1,7 @@
-package org.mechdancer.nano.serial.data
+package org.mechdancer.nano.serial.data.arduino
 
 import org.mechdancer.nano.RidiculousConstants
+import org.mechdancer.nano.serial.data.DataSerializer
 
 object RobotResetPacket : DataSerializer<RobotResetPacket>(0xA8.toByte(), RidiculousConstants.PACKET_INFO_SIZE) {
 
