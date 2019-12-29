@@ -6,6 +6,7 @@ import org.mechdancer.nano.serial.data.arduino.EncoderValuePacket
 import org.mechdancer.nano.serial.data.arduino.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.arduino.MotorStatePacket
 import org.mechdancer.nano.serial.data.arduino.RobotResetPacket
+import kotlin.concurrent.thread
 
 
 fun test() {
@@ -13,7 +14,7 @@ fun test() {
     require(MotorStatePacket.fromByteArray(MotorStatePacket.toByteArray(data)) == data)
     val data2 = MotorSpeedPacket(floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f))
     require(MotorSpeedPacket.fromByteArray(MotorSpeedPacket.toByteArray(data2)) == data2)
-    val data3 = EncoderValuePacket(floatArrayOf(23f, 233f, 2333f, 2333f, 33f, 333f))
+    val data3 = EncoderValuePacket(intArrayOf(23, 233, 2333, 2333, 33, 333))
     require(EncoderValuePacket.fromByteArray(EncoderValuePacket.toByteArray(data3)) == data3)
     val data4 = RobotResetPacket
     require(RobotResetPacket.fromByteArray(RobotResetPacket.toByteArray(data4)) == data4)
@@ -22,10 +23,12 @@ fun test() {
 fun main() {
     SerialManager.startup()
     SerialManager.setPacketListener {
-        if(it.hasValue())
-        println(it)
+        if (it.hasValue())
+            println(it)
     }
-    while (true);
+    Runtime.getRuntime().addShutdownHook(thread(false) {
+        SerialManager.stop()
+    })
 }
 
 //

@@ -5,6 +5,9 @@ import org.mechdancer.nano.serial.data.DataSerializer
 import org.mechdancer.nano.serial.data.arduino.RobotResetPacket
 import java.io.ByteArrayOutputStream
 
+/**
+ * 发给 STM 的重置编码器
+ */
 object EncoderResetPacket :
     DataSerializer<EncoderResetPacket>(3, RidiculousConstants.PACKET_INFO_SIZE + 2) {
     override fun toByteArray(data: EncoderResetPacket): ByteArray =

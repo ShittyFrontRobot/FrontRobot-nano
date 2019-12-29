@@ -6,6 +6,7 @@ import org.mechdancer.nano.serial.data.arduino.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.arduino.MotorStatePacket
 import org.mechdancer.nano.serial.data.arduino.RobotResetPacket
 import org.mechdancer.nano.serial.data.stm.EncoderDataPacket
+import org.mechdancer.nano.serial.data.stm.EncoderResetPacket
 
 private val serializers =
     listOf(
@@ -13,7 +14,8 @@ private val serializers =
         MotorStatePacket,
         EncoderValuePacket,
         RobotResetPacket,
-        EncoderDataPacket
+        EncoderDataPacket,
+        EncoderResetPacket
     )
 
 private val typeWithSize =
@@ -26,17 +28,20 @@ private val typeWithSerializer =
 sealed class ParsedPacket<T>(val core: T) {
 
     //region Arduino
-    class MotorSpeed(core: MotorSpeedPacket) : ParsedPacket<MotorSpeedPacket>(core)
 
+    class MotorSpeed(core: MotorSpeedPacket) : ParsedPacket<MotorSpeedPacket>(core)
     class MotorState(core: MotorStatePacket) : ParsedPacket<MotorStatePacket>(core)
-    @Deprecated("STM")
     class EncoderValue(core: EncoderValuePacket) : ParsedPacket<EncoderValuePacket>(core)
 
     object RobotReset : ParsedPacket<RobotResetPacket>(RobotResetPacket)
+
     //endregion
 
     //region STM
+
     class EncoderData(core: EncoderDataPacket) : ParsedPacket<EncoderDataPacket>(core)
+    object EncoderReset : ParsedPacket<EncoderResetPacket>(EncoderResetPacket)
+
     //endregion
 
 
@@ -53,6 +58,7 @@ sealed class ParsedPacket<T>(val core: T) {
                 is EncoderValuePacket -> EncoderValue(it)
                 is RobotResetPacket   -> RobotReset
                 is EncoderDataPacket  -> EncoderData(it)
+                is EncoderResetPacket -> EncoderReset
                 else                  -> Failed
             }
     }

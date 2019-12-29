@@ -6,6 +6,9 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+/**
+ * 来自 STM 的三编码器脉冲
+ */
 data class EncoderDataPacket(val values: IntArray) {
     init {
         require(values.size == RidiculousConstants.MOTOR_SIZE / 2)
@@ -39,7 +42,7 @@ data class EncoderDataPacket(val values: IntArray) {
                 if (!array.checkPacket(check)) return@splitPacket null
                 val nioBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
                 val result = IntArray(RidiculousConstants.MOTOR_SIZE / 2)
-                (0 until RidiculousConstants.MOTOR_SIZE/2).forEach { i ->
+                (0 until RidiculousConstants.MOTOR_SIZE / 2).forEach { i ->
                     result[i] = nioBuffer.int
                 }
                 EncoderDataPacket(result)

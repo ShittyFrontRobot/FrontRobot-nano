@@ -46,7 +46,7 @@ object SerialManager {
         comPort.setComPortParameters(115200, 8, 1, 0)
         comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 50, 0)
         isStarted = true
-        thread(isDaemon = true) {
+        thread {
             while (isStarted) {
                 val buffer = ByteArray(64)
                 comPort.readBytes(buffer, buffer.size.toLong())

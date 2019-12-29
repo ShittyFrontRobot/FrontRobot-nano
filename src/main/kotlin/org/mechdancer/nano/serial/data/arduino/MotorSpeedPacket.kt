@@ -6,6 +6,9 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+/**
+ * 发给 Arduino 的六电机速度
+ */
 data class MotorSpeedPacket(
     val speeds: FloatArray
 ) {

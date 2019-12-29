@@ -3,6 +3,9 @@ package org.mechdancer.nano.serial.data.arduino
 import org.mechdancer.nano.RidiculousConstants
 import org.mechdancer.nano.serial.data.DataSerializer
 
+/**
+ * 发给 Arduino 的重置整体
+ */
 object RobotResetPacket : DataSerializer<RobotResetPacket>(0xA8.toByte(), RidiculousConstants.PACKET_INFO_SIZE) {
 
     override fun toByteArray(data: RobotResetPacket): ByteArray =

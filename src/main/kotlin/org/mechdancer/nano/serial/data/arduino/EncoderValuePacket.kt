@@ -6,10 +6,11 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-@Suppress("DEPRECATION")
-@Deprecated("STM")
+/**
+ * 来自 Arduino 的六编码器脉冲
+ */
 data class EncoderValuePacket(
-    val values: FloatArray
+    val values: IntArray
 ) {
 
     init {
@@ -27,7 +28,7 @@ data class EncoderValuePacket(
                     .order(ByteOrder.LITTLE_ENDIAN)
                     .apply {
                         data.values.forEach { d ->
-                            putFloat(d)
+                            putInt(d)
                         }
                     }
                     .array()
@@ -43,9 +44,9 @@ data class EncoderValuePacket(
             array.splitPacket { _, bytes, check ->
                 if (!array.checkPacket(check)) return@splitPacket null
                 val nioBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
-                val result = FloatArray(RidiculousConstants.MOTOR_SIZE)
+                val result = IntArray(RidiculousConstants.MOTOR_SIZE)
                 (0 until RidiculousConstants.MOTOR_SIZE).forEach { i ->
-                    result[i] = nioBuffer.float
+                    result[i] = nioBuffer.int
                 }
                 EncoderValuePacket(result)
             }

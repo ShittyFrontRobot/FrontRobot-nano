@@ -6,7 +6,7 @@ import org.mechdancer.nano.serial.data.DataSerializer
 import java.io.ByteArrayOutputStream
 
 /**
- * 电机状态包
+ * 发给 Arduino 的六电机状态
  */
 data class MotorStatePacket(
     val states: Array<MotorState>
