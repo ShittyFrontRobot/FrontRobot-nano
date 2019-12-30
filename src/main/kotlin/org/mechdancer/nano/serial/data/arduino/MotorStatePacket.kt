@@ -1,7 +1,7 @@
 package org.mechdancer.nano.serial.data.arduino
 
 import org.mechdancer.nano.RidiculousConstants
-import org.mechdancer.nano.device.motor.MotorState
+import org.mechdancer.nano.device.Motor.State
 import org.mechdancer.nano.serial.data.DataSerializer
 import org.mechdancer.nano.serial.data.Packet
 
@@ -9,7 +9,7 @@ import org.mechdancer.nano.serial.data.Packet
  * 发给 Arduino 的六电机状态
  */
 data class MotorStatePacket(
-    val states: Array<MotorState>
+    val states: Array<State>
 ) : Packet<MotorStatePacket>(MotorStatePacket) {
 
     init {
@@ -19,16 +19,16 @@ data class MotorStatePacket(
     companion object : DataSerializer<MotorStatePacket>(0xA3.toByte(),
         RidiculousConstants.MOTOR_SIZE + RidiculousConstants.PACKET_INFO_SIZE) {
 
-        private fun MotorState.toByte() = when (this) {
-            MotorState.Stop  -> 0x0
-            MotorState.Break -> 0x1
-            MotorState.Speed -> 0x2
+        private fun State.toByte() = when (this) {
+            State.Stop  -> 0x0
+            State.Break -> 0x1
+            State.Speed -> 0x2
         }.toByte()
 
         private fun fromByte(byte: Byte) = when (byte.toInt()) {
-            0x0  -> MotorState.Stop
-            0x1  -> MotorState.Break
-            0x2  -> MotorState.Speed
+            0x0  -> State.Stop
+            0x1  -> State.Break
+            0x2  -> State.Speed
             else -> throw IllegalArgumentException("Unknown motor state: $byte")
         }
 

@@ -4,9 +4,9 @@ package org.mechdancer.nano.serial.data.parser
 
 import org.mechdancer.nano.RidiculousConstants
 import org.mechdancer.nano.serial.data.arduino.EncoderDataPacket
+import org.mechdancer.nano.serial.data.arduino.EncoderResetPacket
 import org.mechdancer.nano.serial.data.arduino.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.arduino.MotorStatePacket
-import org.mechdancer.nano.serial.data.arduino.RobotResetPacket
 import org.mechdancer.nano.serial.data.stm.EncoderDataPacketSTM
 import org.mechdancer.nano.serial.data.stm.EncoderResetPacketSTM
 
@@ -15,7 +15,7 @@ private val serializers =
         MotorSpeedPacket,
         MotorStatePacket,
         EncoderDataPacket,
-        RobotResetPacket.serializer,
+        EncoderResetPacket.serializer,
         EncoderDataPacketSTM,
         EncoderResetPacketSTM.serializer
     )
@@ -35,7 +35,7 @@ sealed class ParsedPacketWrapper<T>(val core: T) {
     class MotorState(core: MotorStatePacket) : ParsedPacketWrapper<MotorStatePacket>(core)
     class EncoderData(core: EncoderDataPacket) : ParsedPacketWrapper<EncoderDataPacket>(core)
 
-    object RobotReset : ParsedPacketWrapper<RobotResetPacket>(RobotResetPacket)
+    object EncoderReset : ParsedPacketWrapper<EncoderResetPacket>(EncoderResetPacket)
 
     //endregion
 
@@ -45,7 +45,7 @@ sealed class ParsedPacketWrapper<T>(val core: T) {
     class EncoderDataSTM(core: EncoderDataPacketSTM) : ParsedPacketWrapper<EncoderDataPacketSTM>(core)
 
     @Deprecated("STM")
-    object EncoderReset : ParsedPacketWrapper<EncoderResetPacketSTM>(EncoderResetPacketSTM)
+    object EncoderResetSTM : ParsedPacketWrapper<EncoderResetPacketSTM>(EncoderResetPacketSTM)
 
     //endregion
 
@@ -61,9 +61,9 @@ sealed class ParsedPacketWrapper<T>(val core: T) {
                 is MotorSpeedPacket      -> MotorSpeed(it)
                 is MotorStatePacket      -> MotorState(it)
                 is EncoderDataPacket     -> EncoderData(it)
-                is RobotResetPacket      -> RobotReset
+                is EncoderResetPacket    -> EncoderReset
                 is EncoderDataPacketSTM  -> EncoderDataSTM(it)
-                is EncoderResetPacketSTM -> EncoderReset
+                is EncoderResetPacketSTM -> EncoderResetSTM
                 else                     -> Failed
             }
     }

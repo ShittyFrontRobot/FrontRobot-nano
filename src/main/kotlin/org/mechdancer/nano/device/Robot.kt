@@ -1,12 +1,10 @@
 package org.mechdancer.nano.device
 
 import org.mechdancer.nano.RidiculousConstants
-import org.mechdancer.nano.device.motor.Motor
-import org.mechdancer.nano.device.motor.MotorState
 import org.mechdancer.nano.serial.SerialManager
+import org.mechdancer.nano.serial.data.arduino.EncoderResetPacket
 import org.mechdancer.nano.serial.data.arduino.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.arduino.MotorStatePacket
-import org.mechdancer.nano.serial.data.arduino.RobotResetPacket
 import org.mechdancer.nano.serial.data.parser.ParsedPacketWrapper
 import kotlin.concurrent.thread
 
@@ -16,7 +14,8 @@ object Robot {
     private var isInitialized = false
 
 
-    val motors = List(RidiculousConstants.MOTOR_SIZE - 1) { Motor(it) }
+    val motors = List(RidiculousConstants.MOTOR_SIZE) { Motor(it - 1) }
+    val encoders = List(RidiculousConstants.MOTOR_SIZE) { Encoder(it - 1) }
 
 
     /**
@@ -27,9 +26,9 @@ object Robot {
         SerialManager.startup()
         SerialManager.setPacketListener {
             when (it) {
-                is ParsedPacketWrapper.EncoderDataSTM ->
+                is ParsedPacketWrapper.EncoderData ->
                     it.core.values.forEachIndexed { index, value ->
-                        motors[index].encoderValue = value
+                        encoders[index].raw = value.toDouble()
                     }
             }
         }
@@ -38,9 +37,9 @@ object Robot {
         thread {
             while (isInitialized) {
                 // 发送状态
-                val packet1 = MotorStatePacket.toByteArray(MotorStatePacket(motors.map { it.state }.toTypedArray()))
+                val packet1 = MotorStatePacket(Array(motors.size) { motors[it - 1].state })
                 // 发送速度
-                val packet2 = MotorSpeedPacket.toByteArray(MotorSpeedPacket(motors.map { it.speed }.toFloatArray()))
+                val packet2 = MotorSpeedPacket(FloatArray(motors.size) { motors[it - 1].speed })
                 SerialManager.send(packet1)
                 SerialManager.send(packet2)
                 Thread.sleep(RidiculousConstants.SEND_PERIOD)
@@ -52,12 +51,9 @@ object Robot {
      * 重置
      */
     fun reset() {
-        motors.forEach {
-            it.state = MotorState.Stop
-            it.speed = 0f
-            it.encoderValue = 0
-        }
-        SerialManager.send(RobotResetPacket)
+        motors.forEach { it.reset() }
+        encoders.forEach { it.reset() }
+        SerialManager.send(EncoderResetPacket)
     }
 
     /**

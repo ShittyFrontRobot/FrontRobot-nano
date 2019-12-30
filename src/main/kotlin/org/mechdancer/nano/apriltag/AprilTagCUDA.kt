@@ -1,4 +1,4 @@
-package org.mechdancer.nano.device.apriltag
+package org.mechdancer.nano.apriltag
 
 import com.sun.jna.Library
 import com.sun.jna.Native

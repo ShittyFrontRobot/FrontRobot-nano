@@ -1,24 +1,24 @@
 package org.mechdancer.nano
 
-import org.mechdancer.nano.device.motor.MotorState
+import org.mechdancer.nano.device.Motor
 import org.mechdancer.nano.serial.SerialManager
 import org.mechdancer.nano.serial.data.arduino.EncoderDataPacket
+import org.mechdancer.nano.serial.data.arduino.EncoderResetPacket
 import org.mechdancer.nano.serial.data.arduino.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.arduino.MotorStatePacket
-import org.mechdancer.nano.serial.data.arduino.RobotResetPacket
 import kotlin.concurrent.thread
 
 
 fun test() {
-    val data = MotorStatePacket(Array(6) { MotorState.Break })
+    val data = MotorStatePacket(Array(6) { Motor.State.Break })
     require(MotorStatePacket.fromByteArray(data.serialize()) == data)
     require(MotorStatePacket.fromByteArray(MotorStatePacket.toByteArray(data)) == data)
     val data2 = MotorSpeedPacket(floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f))
     require(MotorSpeedPacket.fromByteArray(data2.serialize()) == data2)
     val data3 = EncoderDataPacket(intArrayOf(23, 233, 2333, 2333, 33, 333))
     require(EncoderDataPacket.fromByteArray(data3.serialize()) == data3)
-    val data4 = RobotResetPacket
-    require(RobotResetPacket.serializer.fromByteArray(RobotResetPacket.serialize()) == data4)
+    val data4 = EncoderResetPacket
+    require(EncoderResetPacket.serializer.fromByteArray(EncoderResetPacket.serialize()) == data4)
 }
 
 fun main() {
