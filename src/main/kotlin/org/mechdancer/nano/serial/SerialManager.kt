@@ -3,8 +3,8 @@ package org.mechdancer.nano.serial
 import com.fazecast.jSerialComm.SerialPort
 import org.mechdancer.nano.globalLogger
 import org.mechdancer.nano.info
-import org.mechdancer.nano.serial.data.DataSerializer
-import org.mechdancer.nano.serial.data.parser.ParsedPacket
+import org.mechdancer.nano.serial.data.Packet
+import org.mechdancer.nano.serial.data.parser.ParsedPacketWrapper
 import org.mechdancer.nano.serial.data.parser.buildEngine
 import kotlin.concurrent.thread
 
@@ -22,17 +22,17 @@ object SerialManager {
         } ?: SerialPort.getCommPorts()[0]
     }
 
-    private var packetListener = { _: ParsedPacket<*> -> }
+    private var packetListener = { _: ParsedPacketWrapper<*> -> }
 
     private val engine = buildEngine()
 
-    fun <R, T : DataSerializer<R>> send(data: R, serializer: T) =
-        send(serializer.toByteArray(data))
+    fun <R : Packet<R>> send(data: R) =
+        send(data.serialize())
 
     fun send(data: ByteArray) =
         comPort.writeBytes(data, data.size.toLong())
 
-    fun setPacketListener(block: (ParsedPacket<*>) -> Unit) {
+    fun setPacketListener(block: (ParsedPacketWrapper<*>) -> Unit) {
         packetListener = block
     }
 

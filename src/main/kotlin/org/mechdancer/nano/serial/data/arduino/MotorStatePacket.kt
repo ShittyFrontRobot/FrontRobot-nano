@@ -3,14 +3,14 @@ package org.mechdancer.nano.serial.data.arduino
 import org.mechdancer.nano.RidiculousConstants
 import org.mechdancer.nano.device.motor.MotorState
 import org.mechdancer.nano.serial.data.DataSerializer
-import java.io.ByteArrayOutputStream
+import org.mechdancer.nano.serial.data.Packet
 
 /**
  * 发给 Arduino 的六电机状态
  */
 data class MotorStatePacket(
     val states: Array<MotorState>
-) {
+) : Packet<MotorStatePacket>(MotorStatePacket) {
 
     init {
         require(states.size == RidiculousConstants.MOTOR_SIZE)
@@ -33,17 +33,16 @@ data class MotorStatePacket(
         }
 
         override fun toByteArray(data: MotorStatePacket): ByteArray =
-            ByteArrayOutputStream(size).use {
-                it.writeHead()
-                it.writeType()
+            newStreamedByteArray(size) {
+                writeHead()
+                writeType()
                 data.states
                     .map { s -> s.toByte() }
                     .toByteArray()
-                    .run {
-                        it.write(this)
-                        it.write(it.toByteArray().xorTail())
+                    .let {
+                        write(it)
                     }
-                it.toByteArray()
+                write(toByteArray().xorTail())
             }
 
         override fun fromByteArray(array: ByteArray): MotorStatePacket? =

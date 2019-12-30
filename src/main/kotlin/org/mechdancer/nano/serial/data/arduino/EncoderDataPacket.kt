@@ -5,56 +5,55 @@ import org.mechdancer.nano.serial.data.DataSerializer
 import org.mechdancer.nano.serial.data.Packet
 
 /**
- * 发给 Arduino 的六电机速度
+ * 来自 Arduino 的六编码器脉冲
  */
-data class MotorSpeedPacket(
-    val speeds: FloatArray
-) : Packet<MotorSpeedPacket>(MotorSpeedPacket) {
+data class EncoderDataPacket(
+    val values: IntArray
+) : Packet<EncoderDataPacket>(EncoderDataPacket) {
 
     init {
-        require(speeds.size == RidiculousConstants.MOTOR_SIZE)
+        require(values.size == RidiculousConstants.MOTOR_SIZE)
     }
 
-    companion object : DataSerializer<MotorSpeedPacket>(0xA1.toByte(),
+    companion object : DataSerializer<EncoderDataPacket>(0xA2.toByte(),
         4 * RidiculousConstants.MOTOR_SIZE + RidiculousConstants.PACKET_INFO_SIZE) {
-        override fun toByteArray(data: MotorSpeedPacket): ByteArray =
+        override fun toByteArray(data: EncoderDataPacket): ByteArray =
             newStreamedByteArray(size) {
                 writeHead()
                 writeType()
                 newLEArray(size - RidiculousConstants.PACKET_INFO_SIZE) {
-                    data.speeds.forEach { d ->
-                        putFloat(d)
+                    data.values.forEach { d ->
+                        putInt(d)
                     }
                 }.let { write(it) }
                 write(toByteArray().xorTail())
             }
 
-        override fun fromByteArray(array: ByteArray): MotorSpeedPacket? =
+
+        override fun fromByteArray(array: ByteArray): EncoderDataPacket? =
             array.splitPacket { _, bytes, check ->
                 if (!array.checkPacket(check)) return@splitPacket null
                 val nioBuffer = bytes.toLEArray()
-                // 每个电机一个 float
-                val result = FloatArray(RidiculousConstants.MOTOR_SIZE)
+                val result = IntArray(RidiculousConstants.MOTOR_SIZE)
                 (0 until RidiculousConstants.MOTOR_SIZE).forEach { i ->
-                    result[i] = nioBuffer.float
+                    result[i] = nioBuffer.int
                 }
-                MotorSpeedPacket(result)
+                EncoderDataPacket(result)
             }
-
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as MotorSpeedPacket
+        other as EncoderDataPacket
 
-        if (!speeds.contentEquals(other.speeds)) return false
+        if (!values.contentEquals(other.values)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return speeds.contentHashCode()
+        return values.contentHashCode()
     }
 }

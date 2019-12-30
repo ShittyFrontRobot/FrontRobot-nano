@@ -12,6 +12,6 @@ class Motor(val index: Int) {
 
     var speed = 0f
 
-    var encoderValue: Float = 0f
+    var encoderValue = 0
 
 }

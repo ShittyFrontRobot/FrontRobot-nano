@@ -1,7 +1,10 @@
 package org.mechdancer.nano.serial.data
 
 import org.mechdancer.nano.RidiculousConstants
+import java.io.ByteArrayOutputStream
 import java.io.OutputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import kotlin.experimental.xor
 
 /**
@@ -37,6 +40,14 @@ abstract class DataSerializer<T>(
 
     protected fun ByteArray.xorTail() = sliceArray(1..lastIndex).xorAll()
 
+    protected inline fun newStreamedByteArray(size: Int = 32, block: ByteArrayOutputStream.() -> Unit): ByteArray =
+        ByteArrayOutputStream(size).apply(block).toByteArray()
+
+    protected inline fun newLEArray(size: Int, block: ByteBuffer.() -> Unit): ByteArray =
+        ByteBuffer.allocate(size).order(ByteOrder.LITTLE_ENDIAN).apply(block).array()
+
+    protected fun ByteArray.toLEArray(): ByteBuffer = ByteBuffer.wrap(this).order(ByteOrder.LITTLE_ENDIAN)
+
     /**
      * 检查编码后数据是否属于该数据包
      *
@@ -54,7 +65,7 @@ abstract class DataSerializer<T>(
      * 将编码后数据拆为三部分
      * (帧头, 数据, 校验位)
      */
-    protected fun <T> ByteArray.splitPacket(block: (Byte, ByteArray, Byte) -> T): T =
+    protected inline fun <T> ByteArray.splitPacket(block: (Byte, ByteArray, Byte) -> T): T =
         // 丢弃超过定长项
         take(size).run {
             block(

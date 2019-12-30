@@ -7,7 +7,7 @@ import org.mechdancer.nano.serial.SerialManager
 import org.mechdancer.nano.serial.data.arduino.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.arduino.MotorStatePacket
 import org.mechdancer.nano.serial.data.arduino.RobotResetPacket
-import org.mechdancer.nano.serial.data.parser.ParsedPacket
+import org.mechdancer.nano.serial.data.parser.ParsedPacketWrapper
 import kotlin.concurrent.thread
 
 object Robot {
@@ -27,7 +27,7 @@ object Robot {
         SerialManager.startup()
         SerialManager.setPacketListener {
             when (it) {
-                is ParsedPacket.EncoderValue ->
+                is ParsedPacketWrapper.EncoderDataSTM ->
                     it.core.values.forEachIndexed { index, value ->
                         motors[index].encoderValue = value
                     }
@@ -55,9 +55,9 @@ object Robot {
         motors.forEach {
             it.state = MotorState.Stop
             it.speed = 0f
-            it.encoderValue = 0f
+            it.encoderValue = 0
         }
-        SerialManager.send(RobotResetPacket, RobotResetPacket)
+        SerialManager.send(RobotResetPacket)
     }
 
     /**
