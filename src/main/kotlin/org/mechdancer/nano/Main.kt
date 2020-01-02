@@ -1,12 +1,11 @@
 package org.mechdancer.nano
 
 import org.mechdancer.nano.device.Motor
-import org.mechdancer.nano.serial.SerialManager
 import org.mechdancer.nano.serial.data.arduino.EncoderDataPacket
 import org.mechdancer.nano.serial.data.arduino.EncoderResetPacket
 import org.mechdancer.nano.serial.data.arduino.MotorSpeedPacket
 import org.mechdancer.nano.serial.data.arduino.MotorStatePacket
-import kotlin.concurrent.thread
+import java.io.ByteArrayOutputStream
 
 
 fun test() {
@@ -22,14 +21,14 @@ fun test() {
 }
 
 fun main() {
-    SerialManager.startup()
-    SerialManager.setPacketListener {
-        if (it.hasValue())
-            println(it)
-    }
-    Runtime.getRuntime().addShutdownHook(thread(false) {
-        SerialManager.stop()
-    })
+    val byte = ByteArrayOutputStream().apply {
+        write(EncoderResetPacket.serialize())
+        write(0xff)
+        write(0xff)
+        write(0xff)
+        write(MotorSpeedPacket(floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f)).serialize())
+    }.toByteArray().toList()
+    println(byte.map { it.toInt() and 0xff })
 }
 
 //
